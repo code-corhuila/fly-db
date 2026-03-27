@@ -1,0 +1,28 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: flydb-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: flydb
+      POSTGRES_USER: fly_admin
+      POSTGRES_PASSWORD: 3kfguzdeRiza6DEM9PuAaaG=eza=oYhM
+      POSTGRES_PORT: 5440
+    ports:
+      - "5440:5440"
+    command: ["postgres", "-c", "port=5440"]
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./struct-database/structural_schema.sql:/docker-entrypoint-initdb.d/00-structural_schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fly_admin -d flydb -p 5440"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+
+# Notas:
+# - `00-structural_schema.sql` se ejecuta automáticamente cuando la base es creada por primera vez.
+# - El puerto 5440 es el expuesto tanto en el contenedor como en el host.
